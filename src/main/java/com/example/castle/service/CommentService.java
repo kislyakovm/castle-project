@@ -1,6 +1,8 @@
 package com.example.castle.service;
 
+import com.example.castle.model.Castle;
 import com.example.castle.model.Comment;
+import com.example.castle.model.User;
 import com.example.castle.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,12 +17,21 @@ import java.util.List;
 public class CommentService {
     private final CommentRepository commentRepository;
 
-    public List<Comment> getCommentsByCastleId(Long castleId) {
+    public List<Comment> getCastleComments(Long castleId) {
         return commentRepository.findByCastleId(castleId);
     }
 
+    public Comment getCommentById(Long id) {
+        return commentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Комментарий не найден"));
+    }
+
     @Transactional
-    public Comment addComment(Comment comment) {
+    public Comment addComment(Castle castle, User user, String content) {
+        Comment comment = new Comment();
+        comment.setCastle(castle);
+        comment.setUser(user);
+        comment.setContent(content);
         comment.setCreatedAt(LocalDateTime.now());
         return commentRepository.save(comment);
     }

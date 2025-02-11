@@ -40,4 +40,14 @@ public class CastleService {
     public void deleteCastle(Long id) {
         castleRepository.deleteById(id);
     }
+    @Transactional
+    public Castle updateCastle(Long id, Castle updatedCastle) {
+        Castle existingCastle = getCastleById(id);
+        existingCastle.setName(updatedCastle.getName());
+        existingCastle.setDescription(updatedCastle.getDescription());
+        existingCastle.setCountry(updatedCastle.getCountry());
+        existingCastle.setBuildYear(updatedCastle.getBuildYear());
+        existingCastle.setImageUrl(updatedCastle.getImageUrl());
+        return castleRepository.save(existingCastle);
+    }
 }
