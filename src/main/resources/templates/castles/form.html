@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="${castle.id} ? 'Edit Castle' : 'Create Castle'">Castle Form</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+  <h1 th:text="${castle.id} ? 'Edit Castle' : 'Create New Castle'">Castle Form</h1>
+
+  <form th:action="${castle.id} ? @{/castles/{id}/edit(id=${castle.id})} : @{/castles/create}"
+        th:object="${castle}" method="post" class="mt-4">
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input type="text" class="form-control" id="name" th:field="*{name}" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="country" class="form-label">Country</label>
+      <input type="text" class="form-control" id="country" th:field="*{country}" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="description" class="form-label">Description</label>
+      <textarea class="form-control" id="description" th:field="*{description}" rows="5" required></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="buildYear" class="form-label">Build Year</label>
+      <input type="number" class="form-control" id="buildYear" th:field="*{buildYear}">
+    </div>
+
+    <div class="mb-3">
+      <label for="imageUrl" class="form-label">Image URL</label>
+      <input type="url" class="form-control" id="imageUrl" th:field="*{imageUrl}">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="/" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+</body>
+</html>

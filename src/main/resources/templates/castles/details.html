@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <title th:text="${castle.name} + ' - Castles'">Castle Details</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="/static">Castles</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/static">Home</a>
+        </li>
+        <li class="nav-item" sec:authorize="!isAuthenticated()">
+          <a class="nav-link" href="/login">Login</a>
+        </li>
+        <li class="nav-item" sec:authorize="isAuthenticated()">
+          <form th:action="@{/logout}" method="post">
+            <button class="btn btn-link nav-link" type="submit">Logout</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div th:if="${message}" class="alert alert-success" role="alert" th:text="${message}">
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <h1 th:text="${castle.name}">Castle Name</h1>
+
+      <div class="mb-4">
+        <img th:if="${castle.imageUrl}" th:src="${castle.imageUrl}" class="img-fluid rounded" alt="Castle image">
+      </div>
+
+      <div class="mb-4">
+        <h3>About the Castle</h3>
+        <p th:text="${castle.description}">Description</p>
+        <p><strong>Country:</strong> <span th:text="${castle.country}">Country</span></p>
+        <p><strong>Built in:</strong> <span th:text="${castle.buildYear}">Year</span></p>
+      </div>
+
+      <div sec:authorize="hasRole('ADMIN')" class="mb-4">
+        <a th:href="@{/castles/{id}/edit(id=${castle.id})}" class="btn btn-primary">Edit Castle</a>
+        <form th:action="@{/castles/{id}/delete(id=${castle.id})}" method="post" style="display: inline;">
+          <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete Castle</button>
+        </form>
+      </div>
+
+      <div class="mb-4">
+        <h3>Fun Facts</h3>
+        <div th:if="${#lists.isEmpty(funFacts)}" class="alert alert-info">
+          No fun facts available yet.
+        </div>
+        <ul th:unless="${#lists.isEmpty(funFacts)}">
+          <li th:each="fact : ${funFacts}" th:text="${fact.fact}">Fun fact</li>
+        </ul>
+      </div>
+
+      <div class="mb-4">
+        <h3>Comments</h3>
+        <div th:if="${#lists.isEmpty(comments)}" class="alert alert-info">
+          No comments yet.
+        </div>
+        <div th:unless="${#lists.isEmpty(comments)}" class="list-group">
+          <div th:each="comment : ${comments}" class="list-group-item">
+            <div class="d-flex justify-content-between">
+              <strong th:text="${comment.user.username}">Username</strong>
+              <small th:text="${#temporals.format(comment.createdAt, 'dd-MM-yyyy HH:mm')}">Date</small>
+            </div>
+            <p class="mb-0" th:text="${comment.content}">Comment text</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
