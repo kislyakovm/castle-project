@@ -27,4 +27,9 @@ public class FunFactService {
     public void deleteFunFact(Long id) {
         funFactRepository.deleteById(id);
     }
+
+    public FunFact getFunFactById(Long id) {
+        return funFactRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Интересный факт не найден"));
+    }
 }

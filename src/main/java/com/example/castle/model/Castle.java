@@ -1,9 +1,10 @@
 package com.example.castle.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -29,4 +30,10 @@ public class Castle {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @OneToMany(mappedBy = "castle", cascade = CascadeType.ALL)
+    private List<FunFact> funFacts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "castle", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
 }

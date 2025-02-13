@@ -1,149 +1,183 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <title th:text="${castle.name} + ' - Castles'">Castle Details</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .list-group-item {
-      margin-bottom: 10px;
-    }
-    .comment-form {
-      margin-top: 20px;
-      padding: 15px;
-      background-color: #f8f9fa;
-      border-radius: 5px;
-    }
-    .comment-date {
-      font-size: 0.8em;
-      color: #6c757d;
-    }
-    .castle-image {
-      max-height: 500px;
-      object-fit: cover;
-      width: 100%;
-    }
-    .fun-facts {
-      background-color: #f8f9fa;
-      padding: 20px;
-      border-radius: 5px;
-      margin: 20px 0;
-    }
-    .comments-section {
-      margin-top: 30px;
-    }
-  </style>
+  <title th:text="${castle.name}">Замок</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container">
-    <a class="navbar-brand" href="/">Castles</a>
-    <div class="collapse navbar-collapse">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/">Home</a>
-        </li>
-        <li class="nav-item" sec:authorize="!isAuthenticated()">
-          <a class="nav-link" href="/login">Login</a>
-        </li>
-        <li class="nav-item" sec:authorize="isAuthenticated()">
-          <form th:action="@{/logout}" method="post">
-            <button class="btn btn-link nav-link" type="submit">Logout</button>
-          </form>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<div class="container mt-4">
-  <div th:if="${message}" class="alert alert-success" role="alert" th:text="${message}">
+<div class="container mt-5">
+  <!-- Сообщения -->
+  <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <span th:text="${message}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 
-  <div class="row">
-    <div class="col-md-8">
-      <h1 th:text="${castle.name}" class="mb-4">Castle Name</h1>
-
-      <div class="mb-4">
-        <img th:if="${castle.imageUrl}" th:src="${castle.imageUrl}"
-             class="img-fluid rounded castle-image" alt="Castle image">
+  <!-- Информация о замке -->
+  <div class="card mb-4">
+    <!-- Добавить изображение -->
+    <img th:if="${castle.imageUrl}" th:src="${castle.imageUrl}" class="card-img-top" alt="Castle image">
+    <div class="card-body">
+      <h1 class="card-title" th:text="${castle.name}">Название замка</h1>
+      <p class="card-text" th:text="${castle.description}">Описание замка</p>
+      <div class="mb-3">
+        <strong>Местоположение:</strong>
+        <span th:text="${castle.country}"></span>
+      </div>
+      <div class="mb-3">
+        <strong>Год постройки:</strong>
+        <span th:text="${castle.buildYear}"></span>
       </div>
 
-      <div class="mb-4">
-        <h3>About the Castle</h3>
-        <p th:text="${castle.description}">Description</p>
-        <p><strong>Country:</strong> <span th:text="${castle.country}">Country</span></p>
-        <p><strong>Built in:</strong> <span th:text="${castle.buildYear}">Year</span></p>
-      </div>
-
-      <div sec:authorize="hasRole('ADMIN')" class="mb-4">
-        <a th:href="@{/castles/{id}/edit(id=${castle.id})}" class="btn btn-primary">Edit Castle</a>
-        <form th:action="@{/castles/{id}/delete(id=${castle.id})}" method="post" style="display: inline;">
-          <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete Castle</button>
+      <!-- Кнопки управления замком для администратора -->
+      <div sec:authorize="hasRole('ADMIN')" class="mb-3">
+        <a th:href="@{/castles/edit/{id}(id=${castle.id})}" class="btn btn-primary">
+          <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        <form th:action="@{/castles/delete/{id}(id=${castle.id})}" method="post" class="d-inline">
+          <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены?')">
+            <i class="bi bi-trash"></i> Удалить
+          </button>
         </form>
       </div>
+    </div>
+  </div>
 
-      <div class="fun-facts mb-4">
-        <h3>Fun Facts</h3>
-        <div th:if="${#lists.isEmpty(funFacts)}" class="alert alert-info">
-          No fun facts available yet.
+  <!-- Секция интересных фактов -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3>Интересные факты</h3>
+    </div>
+    <div class="card-body">
+      <!-- Форма добавления факта -->
+      <form sec:authorize="hasRole('ADMIN')"
+            th:action="@{/fun-facts/add}"
+            method="post"
+            class="mb-3">
+        <input type="hidden" name="castleId" th:value="${castle.id}"/>
+        <div class="input-group">
+                    <textarea name="fact" class="form-control"
+                              placeholder="Введите интересный факт..."
+                              required></textarea>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Добавить факт
+          </button>
         </div>
-        <ul th:unless="${#lists.isEmpty(funFacts)}" class="list-unstyled">
-          <li th:each="fact : ${funFacts}" class="mb-2">
-            <i class="fas fa-crown me-2"></i>
-            <span th:text="${fact.fact}">Fun fact</span>
-          </li>
-        </ul>
-      </div>
+      </form>
 
-      <div class="comments-section">
-        <h3>Comments</h3>
+      <!-- Список фактов -->
+      <div th:each="fact : ${castle.funFacts}" class="card mb-2">
+        <div class="card-body">
+          <p class="card-text" th:text="${fact.fact}"></p>
 
-        <div class="comment-form" sec:authorize="isAuthenticated()">
-          <h4>Add a Comment</h4>
-          <form th:action="@{/comments/add}" method="post">
-            <input type="hidden" name="castleId" th:value="${castle.id}">
-            <div class="form-group">
-                            <textarea class="form-control" name="content" rows="3" required
-                                      placeholder="Write your comment here..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary mt-2">Submit</button>
-          </form>
-        </div>
+          <!-- Управление фактами -->
+          <div sec:authorize="hasRole('ADMIN')" class="mt-2">
+            <button class="btn btn-sm btn-primary"
+                    onclick="toggleEditForm(this)"
+                    th:data-fact-id="${fact.id}">
+              <i class="bi bi-pencil"></i> Редактировать
+            </button>
+            <form th:action="@{/fun-facts/delete/{id}(id=${fact.id})}"
+                  method="post"
+                  class="d-inline">
+              <input type="hidden" name="castleId" th:value="${castle.id}"/>
+              <button type="submit" class="btn btn-sm btn-danger"
+                      onclick="return confirm('Удалить этот факт?')">
+                <i class="bi bi-trash"></i> Удалить
+              </button>
+            </form>
 
-        <div th:if="${#lists.isEmpty(comments)}" class="alert alert-info mt-3">
-          No comments yet. Be the first to comment!
-        </div>
-
-        <div th:unless="${#lists.isEmpty(comments)}" class="list-group mt-3">
-          <div th:each="comment : ${comments}" class="list-group-item">
-            <div class="d-flex justify-content-between">
-              <strong th:text="${comment.user.username}">Username</strong>
-              <div>
-                <small class="comment-date"
-                       th:text="${#temporals.format(comment.createdAt, 'dd-MM-yyyy HH:mm')}">Date</small>
-                <form th:if="${#authentication.name == comment.user.username}"
-                      th:action="@{/comments/delete/{id}(id=${comment.id})}"
-                      method="post" style="display: inline;">
-                  <input type="hidden" name="castleId" th:value="${castle.id}">
-                  <button type="submit" class="btn btn-sm btn-danger ms-2"
-                          onclick="return confirm('Are you sure you want to delete this comment?')">×</button>
-                </form>
+            <!-- Форма редактирования факта (скрыта по умолчанию) -->
+            <form th:action="@{/fun-facts/edit/{id}(id=${fact.id})}"
+                  method="post"
+                  class="edit-form mt-2"
+                  style="display: none;">
+              <input type="hidden" name="castleId" th:value="${castle.id}"/>
+              <div class="input-group">
+                                <textarea name="fact" class="form-control"
+                                          th:text="${fact.fact}" required></textarea>
+                <button type="submit" class="btn btn-success">
+                  <i class="bi bi-check-lg"></i> Сохранить
+                </button>
+                <button type="button" class="btn btn-secondary"
+                        onclick="toggleEditForm(this)">
+                  <i class="bi bi-x-lg"></i> Отмена
+                </button>
               </div>
-            </div>
-            <p class="mb-0 mt-2" th:text="${comment.content}">Comment text</p>
+            </form>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="col-md-4">
-      <!-- Здесь можно добавить боковую панель с дополнительной информацией -->
+  <!-- Секция комментариев -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3>Комментарии</h3>
+    </div>
+    <div class="card-body">
+      <!-- Форма добавления комментария -->
+      <form sec:authorize="isAuthenticated()"
+            th:action="@{/comments/add}"
+            method="post"
+            class="mb-3">
+        <input type="hidden" name="castleId" th:value="${castle.id}"/>
+        <div class="input-group">
+                    <textarea name="content" class="form-control"
+                              placeholder="Оставьте свой комментарий..."
+                              required></textarea>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-send"></i> Отправить
+          </button>
+        </div>
+      </form>
+
+      <!-- Список комментариев -->
+      <div th:each="comment : ${castle.comments}" class="card mb-2">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <h6 class="card-subtitle mb-2 text-muted"
+                th:text="${comment.user.username}">Пользователь</h6>
+            <small class="text-muted"
+                   th:text="${#temporals.format(comment.createdAt, 'dd.MM.yyyy HH:mm')}">
+              Дата
+            </small>
+          </div>
+          <p class="card-text" th:text="${comment.content}"></p>
+
+          <!-- Кнопка удаления комментария -->
+          <form th:if="${#authentication.name == comment.user.username} or ${#authorization.expression('hasRole(''ADMIN'')')}"
+                th:action="@{/comments/delete/{id}(id=${comment.id})}"
+                method="post"
+                class="mt-2">
+            <input type="hidden" name="castleId" th:value="${castle.id}"/>
+            <button type="submit" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Удалить этот комментарий?')">
+              <i class="bi bi-trash"></i> Удалить
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<script src="https://kit.fontawesome.com/your-code.js" crossorigin="anonymous"></script>
+<!-- JavaScript для управления формами редактирования -->
+<script>
+  function toggleEditForm(button) {
+    const factCard = button.closest('.card-body');
+    const editForm = factCard.querySelector('.edit-form');
+    if (editForm.style.display === 'none') {
+      editForm.style.display = 'block';
+    } else {
+      editForm.style.display = 'none';
+    }
+  }
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
