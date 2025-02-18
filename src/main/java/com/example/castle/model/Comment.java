@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -34,4 +35,7 @@ public class Comment {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    @Column(name = "likes", columnDefinition = "integer default 0")
+    private int likes;
 }

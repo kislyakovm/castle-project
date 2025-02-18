@@ -1,7 +1,7 @@
 package com.example.castle.controller;
 
 import com.example.castle.model.User;
-import com.example.castle.model.Role;
+import com.example.castle.model.enums.Role;
 import com.example.castle.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
